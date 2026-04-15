@@ -2,6 +2,10 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '@shared/renderConstants';
 import type { MapBounds } from './MapManager';
 
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 2.0;
+const ZOOM_STEP = 0.1;
+
 /** Manages camera follow, bounds, and vignette overlay. */
 export class CameraManager {
   constructor(
@@ -14,6 +18,11 @@ export class CameraManager {
     cam.startFollow(target, true, 0.08, 0.08);
     cam.setBounds(bounds.offsetX, bounds.offsetY, bounds.widthPx, bounds.heightPx);
     cam.setBackgroundColor(backgroundColor);
+
+    scene.input.on('wheel', (_pointer: unknown, _gameObjects: unknown, _deltaX: number, deltaY: number) => {
+      const zoom = Phaser.Math.Clamp(cam.zoom - Math.sign(deltaY) * ZOOM_STEP, MIN_ZOOM, MAX_ZOOM);
+      cam.setZoom(zoom);
+    });
 
     this.createVignette(scene);
   }
