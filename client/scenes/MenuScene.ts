@@ -236,7 +236,10 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private openSettings(): void {
-    console.log('Settings not yet implemented');
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('SettingsScene', { returnTo: 'MenuScene' });
+    });
   }
 
   private exitGame(): void {

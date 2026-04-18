@@ -6,6 +6,7 @@ import { MenuScene } from './scenes/MenuScene';
 import { SlotSelectScene } from './scenes/SlotSelectScene';
 import { CharacterScene } from './scenes/CharacterScene';
 import { GameScene } from './scenes/GameScene';
+import { SettingsScene } from './scenes/SettingsScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.WEBGL, // Required for Light2D pipeline
@@ -23,7 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, AuthScene, MenuScene, SlotSelectScene, CharacterScene, GameScene],
+  scene: [BootScene, AuthScene, MenuScene, SlotSelectScene, CharacterScene, GameScene, SettingsScene],
   backgroundColor: '#0a0a1e',
 };
 

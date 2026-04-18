@@ -8,6 +8,8 @@ const ZOOM_STEP = 0.1;
 
 /** Manages camera follow, bounds, and vignette overlay. */
 export class CameraManager {
+  public readonly vignette: Phaser.GameObjects.Graphics;
+
   constructor(
     scene: Phaser.Scene,
     target: Phaser.GameObjects.Sprite,
@@ -24,10 +26,10 @@ export class CameraManager {
       cam.setZoom(zoom);
     });
 
-    this.createVignette(scene);
+    this.vignette = this.createVignette(scene);
   }
 
-  private createVignette(scene: Phaser.Scene): void {
+  private createVignette(scene: Phaser.Scene): Phaser.GameObjects.Graphics {
     const vignette = scene.add.graphics();
     vignette.setScrollFactor(0);
     vignette.setDepth(2000);
@@ -44,5 +46,7 @@ export class CameraManager {
       vignette.fillRect(i, i, 1, h - i * 2);
       vignette.fillRect(w - i, i, 1, h - i * 2);
     }
+
+    return vignette;
   }
 }

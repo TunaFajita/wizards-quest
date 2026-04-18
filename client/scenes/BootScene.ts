@@ -20,8 +20,8 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet('f-wizard',  'sprites/characters/F-Wizsheet.png',                sheetCfg);
     this.load.spritesheet('darklight', 'sprites/characters/Darklight2247-spritesheet.png', sheetCfg);
 
-    // Mob spritesheets (LPC 128×128, 13 cols)
-    this.load.spritesheet('skeleton', 'sprites/mobs/skeleton-spritesheet.png', { frameWidth: 128, frameHeight: 128 });
+    // Mob spritesheets — same LPC 64×64, 13-col format as player sheets
+    this.load.spritesheet('lizardman', 'sprites/mobs/lizardman-spritesheet.png', { frameWidth: 64, frameHeight: 64 });
 
   }
 
