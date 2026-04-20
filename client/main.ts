@@ -13,6 +13,11 @@ const config: Phaser.Types.Core.GameConfig = {
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   pixelArt: true,
+  render: {
+    antialias:    false,
+    antialiasGL:  false,
+    roundPixels:  true,
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
