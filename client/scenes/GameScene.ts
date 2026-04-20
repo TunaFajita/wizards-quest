@@ -37,12 +37,6 @@ const PLAYER_STAMINA_REGEN    = 5;    // pts/sec once regen kicks in
 const PLAYER_STAMINA_DELAY_MS = 3000; // idle time before regen begins
 const PLAYER_IFRAME_MS        = 700;  // invincibility after taking damage
 
-// ─── HUD ──────────────────────────────────────────────────────────────────────
-// Render the HUD canvas at its native 152×56 and display at 1:1 — Phaser's FIT
-// scale mode already upscales the whole game canvas to the browser window, so
-// any extra HUD multiplier compounds with that and ends up too large.
-const HUD_DISPLAY_SCALE = 1;   // on-screen size (152×56 px)
-const HUD_TEXTURE_KEY = 'player-hud';
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 const PAUSE_PALETTE = {
@@ -93,6 +87,8 @@ export class GameScene extends Phaser.Scene {
   private hudCanvas!:    HTMLCanvasElement;
   private hudCtx!:       CanvasRenderingContext2D;
   private hudImage!:     Phaser.GameObjects.Image;
+  private hudNameText!:  Phaser.GameObjects.Text;
+  private hudLevelText!: Phaser.GameObjects.Text;
   private hudDirty       = true;
   private hudDeathText!: Phaser.GameObjects.Text;
 
@@ -143,6 +139,11 @@ export class GameScene extends Phaser.Scene {
     this.playerDead     = false;
     this.playerIframes  = 0;
     this.hudDirty       = true;
+    this.mobs           = [];
+
+    // Reset camera in case we're coming back from a death fade-out.
+    this.cameras.main.resetFX();
+    this.cameras.main.fadeIn(400, 0, 0, 0);
 
     const config = schoolGroundsConfig;
 
@@ -219,9 +220,6 @@ export class GameScene extends Phaser.Scene {
     // Physics bounds
     const { offsetX, offsetY, widthPx, heightPx } = mapManager.bounds;
     this.physics.world.setBounds(offsetX, offsetY, widthPx, heightPx);
-
-    // Mark save in DB
-    void AuthManager.markHasSave();
 
     // UI camera — renders screen-space UI at a fixed 1:1 scale regardless of
     // the main camera's zoom level. Must be created BEFORE the UI objects so
@@ -353,7 +351,7 @@ export class GameScene extends Phaser.Scene {
     // Title
     const pauseTitle = this.add.text(PX, PY - PH / 2 + 28, 'PAUSED', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '14px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0.5).setScrollFactor(0);
     this.pauseOverlay.add(pauseTitle);
@@ -377,8 +375,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildPauseButton(x: number, y: number, label: string, textColor: number, action: () => void): void {
-    const W = 220;
-    const H = 36;
+    const W = 180;
+    const H = 28;
 
     const gfx = this.add.graphics().setScrollFactor(0);
     this.pauseOverlay.add(gfx);
@@ -395,7 +393,7 @@ export class GameScene extends Phaser.Scene {
     const hex = '#' + textColor.toString(16).padStart(6, '0');
     const txt = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '11px',
+      fontSize: '8px',
       color: hex,
     }).setOrigin(0.5).setScrollFactor(0);
     this.pauseOverlay.add(txt);
@@ -463,12 +461,12 @@ export class GameScene extends Phaser.Scene {
     // Center labels
     track(this.add.text(cx, cy, 'EMOTES', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0.5));
     track(this.add.text(cx, cy + 18, '[T] to close', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '5px',
+      fontSize: '8px',
       color: '#555577',
     }).setOrigin(0.5));
 
@@ -483,12 +481,12 @@ export class GameScene extends Phaser.Scene {
       );
 
       track(this.add.text(bx, by - 8, icon, {
-        fontSize: '14px',
+        fontSize: '16px',
       }).setOrigin(0.5), DEPTH + 1);
 
       track(this.add.text(bx, by + 14, label, {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '4px',
+        fontSize: '8px',
         color: '#aaaacc',
       }).setOrigin(0.5), DEPTH + 1);
 
@@ -530,23 +528,46 @@ export class GameScene extends Phaser.Scene {
 
   private buildHud(): void {
     const HUD_DEPTH = 1000;
+    const HUD_SCALE = 5; // render at 5× for crisp pixel art
 
-    // Offscreen canvas at native 152×56 — Phaser scales the displayed image.
     this.hudCanvas = document.createElement('canvas');
-    this.hudCanvas.width  = HUD_W;
-    this.hudCanvas.height = HUD_H;
+    this.hudCanvas.width  = HUD_W * HUD_SCALE;
+    this.hudCanvas.height = HUD_H * HUD_SCALE;
     this.hudCtx = this.hudCanvas.getContext('2d')!;
 
-    // Register (or reset) the canvas as a Phaser texture.
-    if (this.textures.exists(HUD_TEXTURE_KEY)) this.textures.remove(HUD_TEXTURE_KEY);
-    this.textures.addCanvas(HUD_TEXTURE_KEY, this.hudCanvas);
+    const HUD_TEX = 'player-hud';
+    if (this.textures.exists(HUD_TEX)) this.textures.remove(HUD_TEX);
+    this.textures.addCanvas(HUD_TEX, this.hudCanvas);
 
-    this.hudImage = this.add.image(8, 8, HUD_TEXTURE_KEY)
+    // Set LINEAR filtering so the 3× pixel art downscales smoothly instead of blocky
+    this.textures.get(HUD_TEX).setFilter(Phaser.Textures.FilterMode.LINEAR);
+
+    const S = 1.15 / HUD_SCALE;
+
+    this.textures.get(HUD_TEX).setFilter(Phaser.Textures.FilterMode.LINEAR);
+
+    this.hudImage = this.add.image(8, 8, HUD_TEX)
       .setOrigin(0, 0)
       .setScrollFactor(0)
-      .setScale(HUD_DISPLAY_SCALE)
+      .setScale(S)
       .setDepth(HUD_DEPTH);
     this.markUi(this.hudImage);
+
+    // Overlay crisp Phaser text for name + level only
+    const username = (AuthManager.getSession()?.username ?? 'Hero').toUpperCase();
+    this.hudNameText = this.add.text(8 + 7 * S * HUD_SCALE, 8 + 8 * S * HUD_SCALE, username, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '8px',
+      color: '#e8e0d0',
+    }).setOrigin(0, 0).setScrollFactor(0).setDepth(HUD_DEPTH + 1);
+    this.markUi(this.hudNameText);
+
+    this.hudLevelText = this.add.text(8 + (HUD_W - 5) * S * HUD_SCALE, 8 + 7 * S * HUD_SCALE, `LV${this.playerLevel}`, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '8px',
+      color: '#ffe870',
+    }).setOrigin(1, 0).setScrollFactor(0).setDepth(HUD_DEPTH + 1);
+    this.markUi(this.hudLevelText);
 
     this.renderHud();
 
@@ -560,19 +581,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   private renderHud(): void {
-    const username = (AuthManager.getSession()?.username ?? 'Hero').toUpperCase();
+    // Canvas renders the full pixel-art design (bars, icons, frame) at 5× — just hide text
     const cfg: HudConfig = {
       ...HUD_CONFIG,
-      name:  { ...HUD_CONFIG.name,  text:  username },
-      level: { ...HUD_CONFIG.level, value: this.playerLevel },
+      name:  { ...HUD_CONFIG.name,  show: false },
+      level: { ...HUD_CONFIG.level, show: false },
       bars: [
         { ...HUD_CONFIG.bars[0], pct: (this.playerHp      / PLAYER_MAX_HP)      * 100 },
         { ...HUD_CONFIG.bars[1], pct: (this.playerMp      / PLAYER_MAX_MP)      * 100 },
         { ...HUD_CONFIG.bars[2], pct: (this.playerStamina / PLAYER_MAX_STAMINA) * 100 },
       ],
     };
-    drawHUD(this.hudCtx, cfg, 1);
-    (this.textures.get(HUD_TEXTURE_KEY) as Phaser.Textures.CanvasTexture).refresh();
+    drawHUD(this.hudCtx, cfg, 5);
+    (this.textures.get('player-hud') as Phaser.Textures.CanvasTexture).refresh();
+    this.hudLevelText.setText(`LV${this.playerLevel}`);
     this.hudDirty = false;
   }
 
@@ -748,7 +770,8 @@ export class GameScene extends Phaser.Scene {
     this.isPaused = false;
     this.physics.world.resume();
     this.pauseOverlay.setVisible(false);
-    this.scene.start('SettingsScene', { returnTo: 'GameScene' });
+    this.scene.sleep();
+    this.scene.launch('SettingsScene', { returnTo: 'GameScene' });
   }
 
   private returnToTitle(): void {

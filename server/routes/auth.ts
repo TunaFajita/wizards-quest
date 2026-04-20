@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
-import db, { hashPassword } from '../database.js';
+import db, { hashPassword, verifyPassword } from '../database.js';
 
 export const JWT_SECRET = 'wq-dev-secret-change-in-prod';
 
@@ -52,7 +52,7 @@ router.post('/login', (req: Request, res: Response) => {
 
   const user = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username?.trim()) as any;
   if (!user) return void res.status(401).json({ error: 'Account not found.' });
-  if (hashPassword(password) !== user.password_hash) return void res.status(401).json({ error: 'Incorrect password.' });
+  if (!verifyPassword(password, user.password_hash)) return void res.status(401).json({ error: 'Incorrect password.' });
 
   const hasSave = !!(db.prepare('SELECT 1 FROM save_slots WHERE user_id = ? LIMIT 1').get(user.id));
   const token   = signToken({ userId: user.id, username: user.username });

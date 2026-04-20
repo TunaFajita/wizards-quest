@@ -4,6 +4,7 @@ import { LAYER_SLOTS, CHARACTER_PRESETS, defaultLayers } from '../data/character
 import type { CharacterPreset } from '../types/character';
 import { CHARACTER_KEY } from '../types/character';
 import { AuthManager } from '../systems/AuthManager';
+import { drawPixelBorder, drawStarfield } from '../ui/uiHelpers';
 
 // ─── Layout constants ────────────────────────────────────────────────────────
 const PREVIEW_X   = 240;
@@ -92,17 +93,9 @@ export class CharacterScene extends Phaser.Scene {
 
     const gfx = this.add.graphics();
 
-    // Subtle pixel dots
-    const rng = new Phaser.Math.RandomDataGenerator(['wq-char-stars']);
-    for (let i = 0; i < 80; i++) {
-      const x = rng.integerInRange(0, GAME_WIDTH);
-      const y = rng.integerInRange(0, GAME_HEIGHT);
-      gfx.fillStyle(rng.pick([0x333355, 0x444466, 0x222244]), rng.realInRange(0.3, 0.8));
-      gfx.fillRect(x, y, 1, 1);
-    }
+    drawStarfield(gfx, 'wq-char-stars', 80, [0x333355, 0x444466, 0x222244]);
 
-    // Outer border
-    this.drawPixelBorder(gfx, 12, 12, GAME_WIDTH - 24, GAME_HEIGHT - 24, PALETTE.border);
+    drawPixelBorder(gfx, 12, 12, GAME_WIDTH - 24, GAME_HEIGHT - 24, PALETTE.border);
 
     // Left panel background (preview area)
     gfx.fillStyle(PALETTE.panel, 0.6);
@@ -113,35 +106,20 @@ export class CharacterScene extends Phaser.Scene {
     gfx.fillRect(454, 32, 2, GAME_HEIGHT - 64);
   }
 
-  private drawPixelBorder(
-    gfx: Phaser.GameObjects.Graphics,
-    x: number, y: number, w: number, h: number, color: number,
-  ): void {
-    gfx.fillStyle(color, 1);
-    gfx.fillRect(x, y, w, 2);
-    gfx.fillRect(x, y + h - 2, w, 2);
-    gfx.fillRect(x, y, 2, h);
-    gfx.fillRect(x + w - 2, y, 2, h);
-    gfx.fillRect(x + 4, y + 4, 2, 2);
-    gfx.fillRect(x + w - 6, y + 4, 2, 2);
-    gfx.fillRect(x + 4, y + h - 6, 2, 2);
-    gfx.fillRect(x + w - 6, y + h - 6, 2, 2);
-  }
-
   // ─── Title ──────────────────────────────────────────────────────────────
 
   private drawTitle(): void {
     // Left panel title
     this.add.text(PREVIEW_X, 52, 'YOUR CHARACTER', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0.5);
 
     // Right panel title
     this.add.text(SLOTS_X + 60, 52, 'CUSTOMISE', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#aaaacc',
     }).setOrigin(0.5);
   }
@@ -189,7 +167,7 @@ export class CharacterScene extends Phaser.Scene {
   private drawPreviewArrows(): void {
     const arrowStyle = {
       fontFamily: 'monospace',
-      fontSize: '20px',
+      fontSize: '24px',
       color: '#555577',
     };
 
@@ -223,7 +201,7 @@ export class CharacterScene extends Phaser.Scene {
     // Direction hint
     this.add.text(PREVIEW_X, PREVIEW_Y + 110, 'rotate ◀ ▶', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0.5);
   }
@@ -266,7 +244,7 @@ export class CharacterScene extends Phaser.Scene {
 
     this.add.text(startX + (visible.length * (btnW + gap) - gap) / 2, y - 22, 'PRESETS', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#555577',
     }).setOrigin(0.5);
 
@@ -304,13 +282,13 @@ export class CharacterScene extends Phaser.Scene {
 
     this.add.text(x + 14, y, preset.symbol, {
       fontFamily: 'monospace',
-      fontSize: '14px',
+      fontSize: '16px',
       color: symbolColor,
     }).setOrigin(0, 0.5);
 
     const label = this.add.text(x + w / 2 + 6, y, preset.label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#aaaacc',
     }).setOrigin(0.5);
     this.presetTexts.set(preset.id, label);
@@ -385,7 +363,7 @@ export class CharacterScene extends Phaser.Scene {
     if (isLocked) {
       this.add.text(mid + 20, y, 'Coming Soon', {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '7px',
+        fontSize: '8px',
         color: '#2a2a4a',
       }).setOrigin(0.5);
       return;
@@ -422,7 +400,7 @@ export class CharacterScene extends Phaser.Scene {
   ): void {
     const arrow = this.add.text(x, y, symbol, {
       fontFamily: 'monospace',
-      fontSize: '14px',
+      fontSize: '16px',
       color: '#3a3a6e',
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
@@ -482,7 +460,7 @@ export class CharacterScene extends Phaser.Scene {
 
     const label = this.add.text(x, y, 'BEGIN JOURNEY', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0.5);
 
@@ -505,7 +483,7 @@ export class CharacterScene extends Phaser.Scene {
   private drawBackButton(): void {
     const btn = this.add.text(44, GAME_HEIGHT - 32, '◀ BACK', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
 

@@ -2,7 +2,6 @@
 export class ParticleTextureGenerator {
   static generate(textures: Phaser.Textures.TextureManager): void {
     this.generateFirefly(textures);
-    this.generateSpark(textures);
     this.generateFog(textures);
   }
 
@@ -15,17 +14,6 @@ export class ParticleTextureGenerator {
     grad.addColorStop(1, 'rgba(255,150,30,0)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 8, 8);
-    canvas.refresh();
-  }
-
-  private static generateSpark(textures: Phaser.Textures.TextureManager): void {
-    const canvas = textures.createCanvas('spark', 4, 4)!;
-    const ctx = canvas.context;
-    const grad = ctx.createRadialGradient(2, 2, 0, 2, 2, 2);
-    grad.addColorStop(0, 'rgba(255,240,200,1)');
-    grad.addColorStop(1, 'rgba(255,200,100,0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 4, 4);
     canvas.refresh();
   }
 

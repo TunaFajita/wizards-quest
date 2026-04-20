@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '@shared/renderConstants';
 import { AuthManager } from '../systems/AuthManager';
 import type { Session } from '../systems/AuthManager';
+import { drawPixelBorder, drawStarfield } from '../ui/uiHelpers';
 
 const BGM_KEY = 'wq_bgm_enabled';
 
@@ -55,32 +56,10 @@ export class MenuScene extends Phaser.Scene {
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, PALETTE.bg);
 
     const gfx = this.add.graphics();
-    const rng = new Phaser.Math.RandomDataGenerator(['wq-stars']);
-    for (let i = 0; i < 120; i++) {
-      const x = rng.integerInRange(0, GAME_WIDTH);
-      const y = rng.integerInRange(0, GAME_HEIGHT);
-      const bright = rng.pick([0x444466, 0x666688, 0x9999bb, PALETTE.white]);
-      gfx.fillStyle(bright, rng.realInRange(0.4, 1));
-      gfx.fillRect(x, y, 1, 1);
-    }
+    drawStarfield(gfx, 'wq-stars', 120, [0x444466, 0x666688, 0x9999bb, PALETTE.white], [0.4, 1]);
 
-    this.drawPixelBorder(gfx, 12, 12, GAME_WIDTH - 24, GAME_HEIGHT - 24, PALETTE.border);
-    this.drawPixelBorder(gfx, 16, 16, GAME_WIDTH - 32, GAME_HEIGHT - 32, 0x22224a);
-  }
-
-  private drawPixelBorder(
-    gfx: Phaser.GameObjects.Graphics,
-    x: number, y: number, w: number, h: number, color: number,
-  ): void {
-    gfx.fillStyle(color, 1);
-    gfx.fillRect(x, y, w, 2);
-    gfx.fillRect(x, y + h - 2, w, 2);
-    gfx.fillRect(x, y, 2, h);
-    gfx.fillRect(x + w - 2, y, 2, h);
-    gfx.fillRect(x + 4, y + 4, 2, 2);
-    gfx.fillRect(x + w - 6, y + 4, 2, 2);
-    gfx.fillRect(x + 4, y + h - 6, 2, 2);
-    gfx.fillRect(x + w - 6, y + h - 6, 2, 2);
+    drawPixelBorder(gfx, 12, 12, GAME_WIDTH - 24, GAME_HEIGHT - 24, PALETTE.border);
+    drawPixelBorder(gfx, 16, 16, GAME_WIDTH - 32, GAME_HEIGHT - 32, 0x22224a);
   }
 
   // ─── Title ────────────────────────────────────────────────────────────────
@@ -90,13 +69,13 @@ export class MenuScene extends Phaser.Scene {
 
     this.add.text(cx + 3, 93, "WIZARD'S QUEST", {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '28px',
+      fontSize: '32px',
       color: '#000000',
     }).setOrigin(0.5).setAlpha(0.6);
 
     const title = this.add.text(cx, 90, "WIZARD'S QUEST", {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '28px',
+      fontSize: '32px',
       color: '#ffd700',
     }).setOrigin(0.5);
 
@@ -164,7 +143,7 @@ export class MenuScene extends Phaser.Scene {
 
     const tip = this.add.text(x - 14, y + 20, 'BGM', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#444466',
     }).setOrigin(0.5).setDepth(10);
 
@@ -189,13 +168,13 @@ export class MenuScene extends Phaser.Scene {
 
     this.add.text(rx, ry, `▸ ${session.username}`, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#555577',
     }).setOrigin(1, 0.5);
 
     const logout = this.add.text(rx, ry + 16, 'log out', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
 
@@ -213,7 +192,7 @@ export class MenuScene extends Phaser.Scene {
   private drawVersion(): void {
     this.add.text(28, GAME_HEIGHT - 30, 'v0.1.0', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0, 0.5);
   }
@@ -257,8 +236,8 @@ class MenuButton {
     action: () => void,
     textColor: number = PALETTE.white,
   ) {
-    const W = 260;
-    const H = 36;
+    const W = 200;
+    const H = 28;
 
     const panel = scene.add.graphics();
     const drawPanel = (hover: boolean) => {
@@ -277,14 +256,14 @@ class MenuButton {
 
     const arrow = scene.add.text(x - W / 2 + 12, y, '▶', {
       fontFamily: 'monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: Phaser.Display.Color.IntegerToColor(textColor).rgba,
     }).setOrigin(0, 0.5).setAlpha(0);
 
     const hex  = '#' + textColor.toString(16).padStart(6, '0');
     const text = scene.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '11px',
+      fontSize: '8px',
       color: hex,
     }).setOrigin(0.5);
 

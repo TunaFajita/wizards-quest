@@ -97,7 +97,7 @@ export class SettingsScene extends Phaser.Scene {
   private drawTitle(): void {
     this.add.text(GAME_WIDTH / 2, 44, 'SETTINGS', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '18px', color: '#ffd700',
+      fontSize: '16px', color: '#ffd700',
     }).setOrigin(0.5);
     const gfx = this.add.graphics();
     gfx.fillStyle(P.border, 1);
@@ -123,7 +123,7 @@ export class SettingsScene extends Phaser.Scene {
 
       const txt = this.add.text(x, y, TAB_LABELS[tab], {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '7px',
+        fontSize: '8px',
         color: isActive ? '#ffd700' : '#888899',
       }).setOrigin(0.5);
       this.tabTxts.push(txt);
@@ -223,7 +223,7 @@ export class SettingsScene extends Phaser.Scene {
 
     const valTxt = this.add.text(x + BAR_W + 12, y, `${this.settings.audio[key]}%`, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px', color: '#ffd700',
+      fontSize: '8px', color: '#ffd700',
     }).setOrigin(0, 0.5);
     this.contentObjects.push(valTxt);
 
@@ -249,7 +249,7 @@ export class SettingsScene extends Phaser.Scene {
 
     const lbl = this.add.text(cx, startY, 'RENDER QUALITY', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '9px', color: '#888899',
+      fontSize: '8px', color: '#888899',
     }).setOrigin(0.5);
     this.contentObjects.push(lbl);
 
@@ -274,7 +274,7 @@ export class SettingsScene extends Phaser.Scene {
 
       const txt = this.add.text(bx, by, label, {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '9px', color: isActive ? '#ffd700' : '#888899',
+        fontSize: '8px', color: isActive ? '#ffd700' : '#888899',
       }).setOrigin(0.5);
       this.contentObjects.push(txt);
 
@@ -287,7 +287,7 @@ export class SettingsScene extends Phaser.Scene {
 
     const note = this.add.text(cx, startY + 138, 'Changes apply on next scene load', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px', color: '#444466',
+      fontSize: '8px', color: '#444466',
     }).setOrigin(0.5);
     this.contentObjects.push(note);
   }
@@ -309,7 +309,7 @@ export class SettingsScene extends Phaser.Scene {
 
       const lbl = this.add.text(cx - 140, y, label, {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '9px', color: '#888899',
+        fontSize: '8px', color: '#888899',
       }).setOrigin(0, 0.5);
       this.contentObjects.push(lbl);
 
@@ -337,7 +337,7 @@ export class SettingsScene extends Phaser.Scene {
       if (isListening) {
         const hint = this.add.text(bx, y + 22, 'ESC to cancel', {
           fontFamily: '"Press Start 2P", monospace',
-          fontSize: '5px', color: '#555577',
+          fontSize: '8px', color: '#555577',
         }).setOrigin(0.5);
         this.contentObjects.push(hint);
       }
@@ -345,7 +345,7 @@ export class SettingsScene extends Phaser.Scene {
 
     const note = this.add.text(cx, startY + 210, 'Click a key button to rebind', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px', color: '#444466',
+      fontSize: '8px', color: '#444466',
     }).setOrigin(0.5);
     this.contentObjects.push(note);
   }
@@ -381,7 +381,7 @@ export class SettingsScene extends Phaser.Scene {
 
     const txt = this.add.text(x, y, '◄  SAVE & BACK', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '9px', color: '#ffd700',
+      fontSize: '8px', color: '#ffd700',
     }).setOrigin(0.5);
 
     const zone = this.add.zone(x, y, W + 8, H + 8).setInteractive({ useHandCursor: true });
@@ -401,6 +401,14 @@ export class SettingsScene extends Phaser.Scene {
     SettingsManager.invalidate();
     window.removeEventListener('keydown', this.keyListener);
     this.cameras.main.fadeOut(200, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(this.returnTo));
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      const returnScene = this.scene.get(this.returnTo);
+      this.scene.stop();
+      if (returnScene && this.scene.isSleeping(this.returnTo)) {
+        this.scene.wake(this.returnTo);
+      } else {
+        this.scene.start(this.returnTo);
+      }
+    });
   }
 }

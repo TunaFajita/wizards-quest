@@ -81,9 +81,6 @@ export class AuthManager {
     }
   }
 
-  /** No-op kept for call-site compatibility — hasSave is now derived from slots. */
-  static async markHasSave(): Promise<void> { /* handled by saveToSlot */ }
-
   // ─── Save slots ────────────────────────────────────────────────────────────
 
   /** Fetch all 3 save slots from the server. Returns { A, B, C } each null or SlotData. */

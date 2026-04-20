@@ -9,7 +9,6 @@ export const MAP_ROWS = 24;
 
 // Player
 export const PLAYER_SPEED = 100; // pixels per second
-export const PLAYER_SIZE = 32;
 
 // Directions
 export enum Direction {

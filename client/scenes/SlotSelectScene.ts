@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '@shared/renderConstants';
 import { AuthManager } from '../systems/AuthManager';
 import type { SlotData } from '../systems/AuthManager';
 import { LAYER_SLOTS } from '../data/characterLayers';
+import { drawStarfield } from '../ui/uiHelpers';
 
 type SlotKey = 'A' | 'B' | 'C';
 type Mode = 'new' | 'resume';
@@ -54,7 +55,7 @@ export class SlotSelectScene extends Phaser.Scene {
     // Load spinner while fetching
     const spinner = this.add.text(GAME_WIDTH / 2, CARD_Y, '...', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0.5);
 
@@ -74,11 +75,7 @@ export class SlotSelectScene extends Phaser.Scene {
   private drawBackground(): void {
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, PALETTE.bg);
     const gfx = this.add.graphics();
-    const rng  = new Phaser.Math.RandomDataGenerator(['wq-slots']);
-    for (let i = 0; i < 90; i++) {
-      gfx.fillStyle(rng.pick([0x222244, 0x333366, 0x444488]), rng.realInRange(0.3, 0.8));
-      gfx.fillRect(rng.integerInRange(0, GAME_WIDTH), rng.integerInRange(0, GAME_HEIGHT), 1, 1);
-    }
+    drawStarfield(gfx, 'wq-slots', 90);
     gfx.lineStyle(2, PALETTE.border, 1);
     gfx.strokeRect(12, 12, GAME_WIDTH - 24, GAME_HEIGHT - 24);
   }
@@ -87,7 +84,7 @@ export class SlotSelectScene extends Phaser.Scene {
     const label = this.mode === 'new' ? 'SELECT A SLOT' : 'RESUME JOURNEY';
     this.add.text(GAME_WIDTH / 2, 52, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '14px',
+      fontSize: '16px',
       color: '#ffd700',
     }).setOrigin(0.5);
 
@@ -96,7 +93,7 @@ export class SlotSelectScene extends Phaser.Scene {
       : 'select your character to continue',
     {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0.5);
   }
@@ -129,7 +126,7 @@ export class SlotSelectScene extends Phaser.Scene {
     const badgeColor = filled ? '#ffd700' : '#333355';
     this.add.text(cx, cy - CARD_H / 2 + 22, `SLOT  ${key}`, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: badgeColor,
     }).setOrigin(0.5);
 
@@ -166,7 +163,7 @@ export class SlotSelectScene extends Phaser.Scene {
     // Character name
     this.add.text(cx, cy + 72, data.characterName, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#aaaacc',
     }).setOrigin(0.5);
 
@@ -174,7 +171,7 @@ export class SlotSelectScene extends Phaser.Scene {
     const date = new Date(data.updatedAt).toLocaleDateString();
     this.add.text(cx, cy + 90, date, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0.5);
 
@@ -183,7 +180,7 @@ export class SlotSelectScene extends Phaser.Scene {
     const actionColor = this.mode === 'new' ? '#ff6666' : '#44cc88';
     this.add.text(cx, cy + CARD_H / 2 - 22, actionLabel, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: actionColor,
     }).setOrigin(0.5);
   }
@@ -191,14 +188,14 @@ export class SlotSelectScene extends Phaser.Scene {
   private buildEmptyCard(cx: number, cy: number, clickable: boolean): void {
     this.add.text(cx, cy - 10, 'EMPTY', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: clickable ? '#333355' : '#222233',
     }).setOrigin(0.5);
 
     if (clickable && this.mode === 'new') {
       this.add.text(cx, cy + CARD_H / 2 - 22, '+ START HERE', {
         fontFamily: '"Press Start 2P", monospace',
-        fontSize: '7px',
+        fontSize: '8px',
         color: '#44cc88',
       }).setOrigin(0.5);
     }
@@ -260,14 +257,14 @@ export class SlotSelectScene extends Phaser.Scene {
 
     const titleText = this.add.text(DX, DY - 44, 'OVERWRITE SLOT ?', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#ff6666',
     }).setOrigin(0.5);
     this.confirmOverlay.add(titleText);
 
     this.confirmOverlay.add(this.add.text(DX, DY - 20, 'This will delete your existing character.', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#555577',
       wordWrap: { width: DW - 32 },
       align: 'center',
@@ -303,7 +300,7 @@ export class SlotSelectScene extends Phaser.Scene {
 
     const txt = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color,
     }).setOrigin(0.5);
     this.confirmOverlay.add(txt);
@@ -332,7 +329,7 @@ export class SlotSelectScene extends Phaser.Scene {
   private drawBackButton(): void {
     const btn = this.add.text(44, GAME_HEIGHT - 32, '◀ BACK', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
 

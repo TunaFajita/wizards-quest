@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '@shared/renderConstants';
 import { AuthManager } from '../systems/AuthManager';
+import { drawStarfield } from '../ui/uiHelpers';
 
 // ─── Layout ──────────────────────────────────────────────────────────────────
 const CX = GAME_WIDTH  / 2;
@@ -62,6 +63,9 @@ export class AuthScene extends Phaser.Scene {
     this.activeField = null;
     this.busy        = false;
 
+    // Clean up any prior listener (scene restart / HMR)
+    if (this.keyListener) window.removeEventListener('keydown', this.keyListener);
+
     this.drawBackground();
     this.drawPanel();
     this.drawTabs();
@@ -85,13 +89,7 @@ export class AuthScene extends Phaser.Scene {
     this.add.rectangle(CX, CY, GAME_WIDTH, GAME_HEIGHT, PALETTE.bg);
 
     const gfx = this.add.graphics();
-    const rng  = new Phaser.Math.RandomDataGenerator(['wq-auth']);
-    for (let i = 0; i < 100; i++) {
-      const x = rng.integerInRange(0, GAME_WIDTH);
-      const y = rng.integerInRange(0, GAME_HEIGHT);
-      gfx.fillStyle(rng.pick([0x222244, 0x333366, 0x444488]), rng.realInRange(0.3, 0.9));
-      gfx.fillRect(x, y, 1, 1);
-    }
+    drawStarfield(gfx, 'wq-auth', 100, [0x222244, 0x333366, 0x444488], [0.3, 0.9]);
 
     // Outer frame
     gfx.lineStyle(2, PALETTE.border, 1);
@@ -100,14 +98,14 @@ export class AuthScene extends Phaser.Scene {
     // Game title top
     const title = this.add.text(CX, 38, "WIZARD'S QUEST", {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '14px',
+      fontSize: '16px',
       color: '#ffd700',
     }).setOrigin(0.5);
     this.tweens.add({ targets: title, alpha: { from: 1, to: 0.8 }, duration: 900, yoyo: true, repeat: -1 });
 
     this.add.text(CX, 62, 'your journey awaits', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#333355',
     }).setOrigin(0.5);
   }
@@ -134,13 +132,13 @@ export class AuthScene extends Phaser.Scene {
 
     this.tabLogin = this.add.text(CX - 60, tabY, 'LOG IN', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '9px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     this.tabSignup = this.add.text(CX + 60, tabY, 'SIGN UP', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '9px',
+      fontSize: '8px',
       color: '#444466',
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
@@ -199,7 +197,7 @@ export class AuthScene extends Phaser.Scene {
     const uy = PANEL_Y + 92;
     this.add.text(lx, uy - 14, 'USERNAME', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#555577',
     });
 
@@ -214,7 +212,7 @@ export class AuthScene extends Phaser.Scene {
 
     this.usernameCursor = this.add.text(lx + 8, uy + fieldH / 2, '|', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0, 0.5).setAlpha(0);
 
@@ -226,7 +224,7 @@ export class AuthScene extends Phaser.Scene {
     const py = PANEL_Y + 162;
     this.add.text(lx, py - 14, 'PASSWORD', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#555577',
     });
 
@@ -241,7 +239,7 @@ export class AuthScene extends Phaser.Scene {
 
     this.passwordCursor = this.add.text(lx + 8, py + fieldH / 2, '|', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '10px',
+      fontSize: '8px',
       color: '#ffd700',
     }).setOrigin(0, 0.5).setAlpha(0);
 
@@ -252,7 +250,7 @@ export class AuthScene extends Phaser.Scene {
     // ── Error text ──
     this.errorText = this.add.text(CX, PANEL_Y + 218, '', {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#ff5555',
       wordWrap: { width: PANEL_W - 32 },
       align: 'center',
